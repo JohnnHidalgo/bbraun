@@ -1,0 +1,199 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Usuario {
+  id        String   @id @default(cuid())
+  nombre    String
+  email     String   @unique
+  password  String
+  rol       String   // Administrador, Tecnico, Cliente
+  region    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  visitas Visita[]
+  ticketsAsignados Ticket[] @relation("TecnicoTickets")
+
+  @@map("usuarios")
+}
+
+model Cliente {
+  id               String   @id @default(cuid())
+  nombre           String
+  tipo             String   // hospital, clinica, institucion
+  direccion        String
+  ciudad           String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relaciones
+  contactos   Contacto[]
+  maquinas    Maquina[]
+  contratos   Contrato[]
+  tickets     Ticket[]
+  inventarios InventarioCliente[]
+
+  @@map("clientes")
+}
+
+model Contacto {
+  id               String   @id @default(cuid())
+  clienteId        String
+  nombre           String
+  cargo            String?  // Director Médico, Administrador, etc.
+  telefono         String
+  email            String?
+  esPrincipal      Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relaciones
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  @@map("contactos")
+}
+
+model Maquina {
+  id                  String   @id @default(cuid())
+  modelo              String
+  numeroSerie         String   @unique
+  fechaCompra         DateTime
+  fechaLlegadaAlmacen DateTime?
+  fechaInstalacion    DateTime?
+  clienteId           String
+  estado              String   // activo, inactivo, etc.
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relaciones
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  tickets Ticket[]
+
+  @@map("maquinas")
+}
+
+model Contrato {
+  id            String   @id @default(cuid())
+  clienteId     String
+  fechaInicio   DateTime
+  fechaFin      DateTime
+  anosGarantia  Int
+  observaciones String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relaciones
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  @@map("contratos")
+}
+
+model Ticket {
+  id             String   @id @default(cuid())
+  tipo           String   // preventivo, correctivo
+  estado         String   // abierto, asignado, en_proceso, esperando_repuestos, cerrado
+  clienteId      String
+  maquinaId      String
+  fechaSolicitud DateTime @default(now())
+  prioridad      String   // baja, media, alta
+  descripcion    String
+  tecnicoId      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relaciones
+  cliente  Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  maquina  Maquina  @relation(fields: [maquinaId], references: [id], onDelete: Cascade)
+  tecnico  Usuario? @relation("TecnicoTickets", fields: [tecnicoId], references: [id])
+  visitas  Visita[]
+  encuestas EncuestaSatisfaccion[]
+
+  @@map("tickets")
+}
+
+model Visita {
+  id               String   @id @default(cuid())
+  ticketId         String
+  tecnicoId        String
+  fechaVisita      DateTime
+  horasTrabajo     Float
+  descripcionTrabajo String
+  resultado        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relaciones
+  ticket   Ticket     @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  tecnico  Usuario    @relation(fields: [tecnicoId], references: [id], onDelete: Cascade)
+  usoRepuestos UsoRepuesto[]
+
+  @@map("visitas")
+}
+
+model Repuesto {
+  id          String   @id @default(cuid())
+  nombre      String
+  codigo      String   @unique
+  descripcion String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  usoRepuestos UsoRepuesto[]
+  inventarios  InventarioCliente[]
+
+  @@map("repuestos")
+}
+
+model UsoRepuesto {
+  id          String  @id @default(cuid())
+  visitaId    String
+  repuestoId  String
+  cantidad    Int
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  visita   Visita   @relation(fields: [visitaId], references: [id], onDelete: Cascade)
+  repuesto Repuesto @relation(fields: [repuestoId], references: [id], onDelete: Cascade)
+
+  @@map("uso_repuestos")
+}
+
+model InventarioCliente {
+  id         String  @id @default(cuid())
+  clienteId  String
+  repuestoId String
+  cantidad   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relaciones
+  cliente  Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  repuesto Repuesto @relation(fields: [repuestoId], references: [id], onDelete: Cascade)
+
+  @@unique([clienteId, repuestoId])
+  @@map("inventario_clientes")
+}
+
+model EncuestaSatisfaccion {
+  id         String   @id @default(cuid())
+  ticketId   String
+  calificacion Int    // 1-5
+  comentarios String?
+  createdAt  DateTime @default(now())
+
+  // Relaciones
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("encuestas_satisfaccion")
+}
