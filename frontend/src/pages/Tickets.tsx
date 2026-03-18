@@ -3,18 +3,19 @@ import { Add as AddIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const Tickets: React.FC = () => {
+  const navigate = useNavigate();
+
   // Datos de ejemplo
   const tickets = [
-    { id: 1, tipo: 'correctivo', estado: 'abierto', prioridad: 'alta', cliente: 'Hospital Santa Cruz', descripcion: 'Máquina no enciende' },
-    { id: 2, tipo: 'preventivo', estado: 'asignado', prioridad: 'media', cliente: 'Clínica Los Olivos', descripcion: 'Mantenimiento mensual' },
-    { id: 3, tipo: 'correctivo', estado: 'cerrado', prioridad: 'baja', cliente: 'Hospital Viedma', descripcion: 'Cambio de filtros' },
+    { id: '1', estado: 'abierto', prioridad: 'alta', cliente: 'Hospital Santa Cruz', descripcion: 'Máquina no enciende' },
+    { id: '2', estado: 'en_progreso', prioridad: 'media', cliente: 'Clínica Los Olivos', descripcion: 'Mantenimiento mensual' },
+    { id: '3', estado: 'cerrado', prioridad: 'baja', cliente: 'Hospital Viedma', descripcion: 'Cambio de filtros' },
   ];
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
       case 'abierto': return 'error';
-      case 'asignado': return 'warning';
-      case 'en_proceso': return 'info';
+      case 'en_progreso': return 'warning';
       case 'cerrado': return 'success';
       default: return 'default';
     }
@@ -43,7 +44,6 @@ const Tickets: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>Tipo</TableCell>
               <TableCell>Estado</TableCell>
               <TableCell>Prioridad</TableCell>
               <TableCell>Cliente</TableCell>
@@ -55,13 +55,6 @@ const Tickets: React.FC = () => {
             {tickets.map((ticket) => (
               <TableRow key={ticket.id}>
                 <TableCell>{ticket.id}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={ticket.tipo}
-                    color={ticket.tipo === 'preventivo' ? 'primary' : 'secondary'}
-                    size="small"
-                  />
-                </TableCell>
                 <TableCell>
                   <Chip
                     label={ticket.estado}
@@ -79,11 +72,8 @@ const Tickets: React.FC = () => {
                 <TableCell>{ticket.cliente}</TableCell>
                 <TableCell>{ticket.descripcion}</TableCell>
                 <TableCell>
-                  <Button size="small" color="primary">
+                  <Button size="small" color="primary" onClick={() => navigate(`/tickets/${ticket.id}`)}>
                     Ver
-                  </Button>
-                  <Button size="small" color="secondary" sx={{ ml: 1 }}>
-                    Editar
                   </Button>
                 </TableCell>
               </TableRow>

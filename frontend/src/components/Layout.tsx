@@ -17,7 +17,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { text: 'Clientes', path: '/clientes' },
     { text: 'Máquinas', path: '/maquinas' },
     { text: 'Tickets', path: '/tickets' },
-    { text: 'Visitas', path: '/visitas' },
     { text: 'Técnicos', path: '/tecnicos' },
     { text: 'Inventario', path: '/inventario' },
     { text: 'Reportes', path: '/reportes' },
