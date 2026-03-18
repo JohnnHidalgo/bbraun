@@ -21,7 +21,7 @@ const getTickets = async (req, res) => {
 exports.getTickets = getTickets;
 const createTicket = async (req, res) => {
     try {
-        const { tipo, clienteId, maquinaId, prioridad, descripcion } = req.body;
+        const { tipo, clienteId, maquinaId, prioridad, descripcion, fechaSolicitud } = req.body;
         const ticket = await prisma.ticket.create({
             data: {
                 tipo,
@@ -30,6 +30,7 @@ const createTicket = async (req, res) => {
                 maquinaId,
                 prioridad,
                 descripcion,
+                ...(fechaSolicitud && { fechaSolicitud: new Date(fechaSolicitud) }),
             },
         });
         res.json(ticket);

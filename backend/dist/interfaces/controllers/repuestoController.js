@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteRepuesto = exports.updateRepuesto = exports.getRepuestoById = exports.createRepuesto = exports.getRepuestos = void 0;
+exports.getRepuestosByCliente = exports.deleteRepuesto = exports.updateRepuesto = exports.getRepuestoById = exports.createRepuesto = exports.getRepuestos = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 const getRepuestos = async (req, res) => {
@@ -86,4 +86,26 @@ const deleteRepuesto = async (req, res) => {
     }
 };
 exports.deleteRepuesto = deleteRepuesto;
+const getRepuestosByCliente = async (req, res) => {
+    try {
+        const { clienteId } = req.params;
+        const inventarios = await prisma.inventarioCliente.findMany({
+            where: { clienteId },
+            include: {
+                repuesto: true,
+            },
+        });
+        // Mapear a formato con cantidad
+        const repuestosConCantidad = inventarios.map((inv) => ({
+            ...inv.repuesto,
+            cantidad: inv.cantidad,
+            inventarioId: inv.id,
+        }));
+        res.json(repuestosConCantidad);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Error fetching repuestos para cliente' });
+    }
+};
+exports.getRepuestosByCliente = getRepuestosByCliente;
 //# sourceMappingURL=repuestoController.js.map

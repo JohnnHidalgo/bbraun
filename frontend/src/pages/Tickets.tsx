@@ -1,5 +1,6 @@
 import { Container, Typography, Button, Box, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const Tickets: React.FC = () => {
   // Datos de ejemplo

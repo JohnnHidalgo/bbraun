@@ -1,5 +1,5 @@
 import { Container, Typography, Box, Card, CardContent, Button, Chip, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, Select, MenuItem as MuiMenuItem, Tabs, Tab } from '@mui/material';
-import { ArrowBack as ArrowBackIcon, Build as BuildIcon, Inventory as InventoryIcon, CalendarToday as CalendarIcon, PersonAdd as PersonAddIcon, Edit as EditIcon, Delete as DeleteIcon, Star as StarIcon, StarBorder as StarBorderIcon, Visibility as VisibilityIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Add as AddIcon, History as HistoryIcon } from '@mui/icons-material';
+import { ArrowBack as ArrowBackIcon, Build as BuildIcon, Inventory as InventoryIcon, CalendarToday as CalendarIcon, PersonAdd as PersonAddIcon, Edit as EditIcon, Delete as DeleteIcon, Star as StarIcon, StarBorder as StarBorderIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Add as AddIcon, History as HistoryIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { clienteApi, maquinaApi, ticketApi, visitaApi, repuestoApi, contactoApi } from '../services/apiService';

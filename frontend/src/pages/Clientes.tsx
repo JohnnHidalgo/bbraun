@@ -1,5 +1,5 @@
 import { Container, Typography, Button, Box, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import { Add as AddIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clienteApi } from '../services/apiService';

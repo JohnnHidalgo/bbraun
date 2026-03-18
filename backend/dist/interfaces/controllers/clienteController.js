@@ -8,6 +8,7 @@ const getClientes = async (req, res) => {
         const clientes = await prisma.cliente.findMany({
             include: {
                 maquinas: true,
+                contactos: true,
             },
         });
         res.json(clientes);
@@ -19,15 +20,13 @@ const getClientes = async (req, res) => {
 exports.getClientes = getClientes;
 const createCliente = async (req, res) => {
     try {
-        const { nombre, tipo, direccion, ciudad, nombreContacto, telefonoContacto } = req.body;
+        const { nombre, tipo, direccion, ciudad } = req.body;
         const cliente = await prisma.cliente.create({
             data: {
                 nombre,
                 tipo,
                 direccion,
                 ciudad,
-                nombreContacto,
-                telefonoContacto,
             },
         });
         res.json(cliente);
@@ -46,6 +45,7 @@ const getClienteById = async (req, res) => {
                 maquinas: true,
                 contratos: true,
                 tickets: true,
+                contactos: true,
             },
         });
         if (!cliente) {
@@ -61,7 +61,7 @@ exports.getClienteById = getClienteById;
 const updateCliente = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, tipo, direccion, ciudad, nombreContacto, telefonoContacto } = req.body;
+        const { nombre, tipo, direccion, ciudad } = req.body;
         const cliente = await prisma.cliente.update({
             where: { id },
             data: {
@@ -69,8 +69,6 @@ const updateCliente = async (req, res) => {
                 tipo,
                 direccion,
                 ciudad,
-                nombreContacto,
-                telefonoContacto,
             },
         });
         res.json(cliente);
