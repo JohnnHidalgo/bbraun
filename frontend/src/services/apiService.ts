@@ -58,6 +58,16 @@ export const repuestoApi = {
   delete: (id: string) => api.delete(`/repuestos/${id}`),
 };
 
+// Servicios para Inventario
+export const inventarioApi = {
+  getAll: () => api.get('/inventarios'),
+  getByCliente: (clienteId: string) => api.get(`/inventarios/cliente/${clienteId}`),
+  getById: (id: string) => api.get(`/inventarios/${id}`),
+  create: (data: any) => api.post('/inventarios', data),
+  update: (id: string, data: any) => api.put(`/inventarios/${id}`, data),
+  delete: (id: string) => api.delete(`/inventarios/${id}`),
+};
+
 // Servicios para Contactos
 export const contactoApi = {
   getByCliente: (clienteId: string) => api.get(`/contactos/cliente/${clienteId}`),

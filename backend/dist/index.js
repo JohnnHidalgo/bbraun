@@ -16,6 +16,7 @@ const ticketRoutes_1 = __importDefault(require("./interfaces/routes/ticketRoutes
 const visitaRoutes_1 = __importDefault(require("./interfaces/routes/visitaRoutes"));
 const repuestoRoutes_1 = __importDefault(require("./interfaces/routes/repuestoRoutes"));
 const contactoRoutes_1 = __importDefault(require("./interfaces/routes/contactoRoutes"));
+const inventarioRoutes_1 = __importDefault(require("./interfaces/routes/inventarioRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const prisma = new client_1.PrismaClient();
@@ -31,6 +32,7 @@ app.use('/api/tickets', ticketRoutes_1.default);
 app.use('/api/visitas', visitaRoutes_1.default);
 app.use('/api/repuestos', repuestoRoutes_1.default);
 app.use('/api/contactos', contactoRoutes_1.default);
+app.use('/api/inventarios', inventarioRoutes_1.default);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

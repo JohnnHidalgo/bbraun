@@ -4,8 +4,6 @@ import {
   Typography,
   Button,
   Box,
-  Card,
-  CardContent,
   Chip,
   Dialog,
   DialogTitle,
@@ -26,7 +24,7 @@ import {
   TableRow,
   Paper,
 } from '@mui/material';
-import { Add as AddIcon, Groups as GroupsIcon } from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
 
 interface Tecnico {
   id: number;
@@ -260,14 +258,14 @@ const Tecnicos: React.FC = () => {
                 </TableCell>
                 <TableCell align="right">
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                    <Button size="small" color="primary" onClick={() => openViewDialog(tecnico)}>
-                      Ver
-                    </Button>
                     <Button size="small" color="secondary" onClick={() => openEditDialog(tecnico)}>
                       Editar
                     </Button>
-                    <Button size="small" color={tecnico.estado === 'activo' ? 'warning' : 'success'} onClick={() => toggleEstado(tecnico)}>
-                      {tecnico.estado === 'activo' ? 'Desactivar' : 'Activar'}
+                    <Button size="small" color="primary" onClick={() => openViewDialog(tecnico)}>
+                      Ver Info
+                    </Button>
+                    <Button size="small" onClick={() => toggleEstado(tecnico)}>
+                      {tecnico.estado === 'activo' ? 'Inactivar' : 'Activar'}
                     </Button>
                   </Box>
                 </TableCell>

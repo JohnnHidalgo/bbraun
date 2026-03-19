@@ -2,7 +2,7 @@ import { Container, Typography, Box, Card, CardContent, Button, Chip, Paper, Tab
 import { ArrowBack as ArrowBackIcon, Build as BuildIcon, Inventory as InventoryIcon, CalendarToday as CalendarIcon, PersonAdd as PersonAddIcon, Edit as EditIcon, Delete as DeleteIcon, Star as StarIcon, StarBorder as StarBorderIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Add as AddIcon, History as HistoryIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { clienteApi, maquinaApi, ticketApi, visitaApi, repuestoApi, contactoApi } from '../services/apiService';
+import { clienteApi, maquinaApi, ticketApi, visitaApi, repuestoApi, inventarioApi, contactoApi } from '../services/apiService';
 
 interface Cliente {
   id: string;
@@ -105,6 +105,11 @@ const ClienteDetail: React.FC = () => {
     prioridad: 'media',
     fechaSolicitud: new Date().toISOString().split('T')[0]
   });
+
+  // Estado para el diálogo de edición de inventario
+  const [inventarioDialogOpen, setInventarioDialogOpen] = useState(false);
+  const [editingInventario, setEditingInventario] = useState<Repuesto | null>(null);
+  const [inventarioCantidad, setInventarioCantidad] = useState<number>(0);
 
   // Estado para el diálogo de historial de máquina
   const [machineHistoryDialogOpen, setMachineHistoryDialogOpen] = useState(false);
@@ -279,6 +284,32 @@ const ClienteDetail: React.FC = () => {
       setContactos(contactosResponse.data);
     } catch (error) {
       console.error('Error setting principal contacto:', error);
+    }
+  };
+
+  // Funciones para editar inventario
+  const handleOpenInventarioDialog = (repuesto: Repuesto) => {
+    setEditingInventario(repuesto);
+    setInventarioCantidad(repuesto.cantidad || 0);
+    setInventarioDialogOpen(true);
+  };
+
+  const handleCloseInventarioDialog = () => {
+    setEditingInventario(null);
+    setInventarioCantidad(0);
+    setInventarioDialogOpen(false);
+  };
+
+  const handleSaveInventario = async () => {
+    if (!editingInventario || !editingInventario.inventarioId) return;
+    try {
+      await inventarioApi.update(editingInventario.inventarioId, { cantidad: inventarioCantidad });
+      const repuestosResponse = await repuestoApi.getByCliente(id!);
+      setRepuestos(repuestosResponse.data);
+      handleCloseInventarioDialog();
+    } catch (error) {
+      console.error('Error updating inventario:', error);
+      alert('Error al actualizar el inventario');
     }
   };
 
@@ -756,6 +787,7 @@ const ClienteDetail: React.FC = () => {
                       <TableCell sx={{ fontWeight: 600 }}>Descripción</TableCell>
                       <TableCell align="center" sx={{ fontWeight: 600 }}>Cantidad</TableCell>
                       <TableCell align="center" sx={{ fontWeight: 600 }}>Estado</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 600 }}>Acciones</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -784,6 +816,11 @@ const ClienteDetail: React.FC = () => {
                             color={repuesto.cantidad && repuesto.cantidad > 0 ? 'success' : 'error'}
                             size="small"
                           />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Button size="small" onClick={() => handleOpenInventarioDialog(repuesto)}>
+                            Editar
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -842,6 +879,34 @@ const ClienteDetail: React.FC = () => {
             disabled={!contactoForm.nombre || !contactoForm.telefono}
           >
             {editingContacto ? 'Actualizar' : 'Crear'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Inventario Dialog */}
+      <Dialog open={inventarioDialogOpen} onClose={handleCloseInventarioDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>Editar Inventario</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+            <TextField
+              label="Repuesto"
+              value={editingInventario?.nombre || ''}
+              fullWidth
+              disabled
+            />
+            <TextField
+              label="Cantidad"
+              type="number"
+              value={inventarioCantidad}
+              onChange={(e) => setInventarioCantidad(Number(e.target.value))}
+              fullWidth
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseInventarioDialog}>Cancelar</Button>
+          <Button onClick={handleSaveInventario} variant="contained" disabled={inventarioCantidad < 0}>
+            Guardar
           </Button>
         </DialogActions>
       </Dialog>
