@@ -1,96 +1,63 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container, Typography, Button, Box, Chip, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Tabs, Tab, Badge
+  TableHead, TableRow, Paper, Tabs, Tab, Badge, CircularProgress
 } from '@mui/material';
 import { Add as AddIcon, OpenInNew as OpenIcon } from '@mui/icons-material';
+import { useUser } from '../contexts/UserContext';
+import { useData } from '../contexts/DataContext';
 
 interface Ticket {
   id: string;
-  titulo: string;
   descripcion: string;
   prioridad: string;
   estado: string;
   cliente: { nombre: string };
   tecnico?: { nombre: string };
   maquina?: { modelo: string };
-  fechaCreacion: string;
+  fechaSolicitud: string;
   fechaAsignacion?: string;
+  tecnicoId?: string;
+  createdAt: string;
 }
 
 const ColaTickets: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
+  const { tickets, loading, loadTickets, updateTicket } = useData();
   const [tabValue, setTabValue] = useState(0);
-  const usuarioActual = { id: '2', nombre: 'María López' }; // Simulado
 
-  // Datos de ejemplo
-  const todosTickets: Ticket[] = [
-    {
-      id: '1',
-      titulo: 'Máquina no enciende',
-      descripcion: 'La máquina no responde al botón de encendido',
-      prioridad: 'alta',
-      estado: 'en_progreso',
-      cliente: { nombre: 'Hospital Santa Cruz' },
-      tecnico: { nombre: 'Juan Pérez' },
-      maquina: { modelo: 'Braun Infusomat' },
-      fechaCreacion: '2026-03-10T08:00:00',
-      fechaAsignacion: '2026-03-10T09:30:00'
-    },
-    {
-      id: '2',
-      titulo: 'Mantenimiento preventivo',
-      descripcion: 'Revisión general y cambio de filtros',
-      prioridad: 'media',
-      estado: 'abierto',
-      cliente: { nombre: 'Clínica Los Olivos' },
-      maquina: { modelo: 'Braun Infusomat Space' },
-      fechaCreacion: '2026-03-11T10:00:00'
-    },
-    {
-      id: '3',
-      titulo: 'Panel de control defectuoso',
-      descripcion: 'Panel muestra valores incorrectos',
-      prioridad: 'alta',
-      estado: 'abierto',
-      cliente: { nombre: 'Hospital Central' },
-      maquina: { modelo: 'Braun Infusomat Basic' },
-      fechaCreacion: '2026-03-12T08:30:00'
-    },
-    {
-      id: '4',
-      titulo: 'Revisión de conexiones',
-      descripcion: 'Cable dañado, requiere reemplazo',
-      prioridad: 'baja',
-      estado: 'abierto',
-      cliente: { nombre: 'Clínica San José' },
-      maquina: { modelo: 'Braun Infusomat Standard' },
-      fechaCreacion: '2026-03-11T14:00:00'
-    },
-    {
-      id: '5',
-      titulo: 'Revisión completada',
-      descripcion: 'Mantenimiento realizado exitosamente',
-      prioridad: 'baja',
-      estado: 'cerrado',
-      cliente: { nombre: 'Hospital Santa Cruz' },
-      tecnico: { nombre: 'Carlos Díaz' },
-      maquina: { modelo: 'Braun Infusomat' },
-      fechaCreacion: '2026-03-08T09:00:00',
-      fechaAsignacion: '2026-03-08T10:00:00'
+  useEffect(() => {
+    loadTickets();
+  }, [loadTickets]);
+
+  const ticketsDisponibles = tickets.filter(t => !t.tecnicoId && t.estado === 'abierto');
+  const misTickets = tickets.filter(t => t.tecnicoId === user?.id);
+  const ticketsEnProgreso = tickets.filter(t => t.estado === 'en_proceso');
+  const todosTickets = tickets;
+
+  const handleTomarTicket = async (ticketId: string) => {
+    if (!user) {
+      alert('Usuario no autenticado');
+      return;
     }
-  ];
-
-  const ticketsDisponibles = todosTickets.filter(t => t.estado === 'abierto' && !t.tecnico);
-  const misTickets = todosTickets.filter(t => t.tecnico?.nombre === usuarioActual.nombre);
-  const ticketsEnProgreso = todosTickets.filter(t => t.estado === 'en_progreso');
-
+    try {
+      await updateTicket(ticketId, {
+        estado: 'en_proceso',
+        tecnicoId: user.id,
+      });
+      alert('Ticket asignado a ti.');
+    } catch (error) {
+      console.error('Error taking ticket:', error);
+      alert('Error al tomar el ticket');
+    }
+  };
   const getEstadoColor = (estado: string) => {
     switch (estado) {
       case 'abierto': return 'default';
-      case 'en_progreso': return 'warning';
-      case 'resuelto': return 'info';
+      case 'en_proceso': return 'warning';
+      case 'esperando_repuestos': return 'info';
       case 'cerrado': return 'success';
       default: return 'default';
     }
@@ -98,9 +65,9 @@ const ColaTickets: React.FC = () => {
 
   const getPrioridadColor = (prioridad: string) => {
     switch (prioridad) {
-      case 'alta': return 'error';
-      case 'media': return 'warning';
-      case 'baja': return 'success';
+      case 'Alta': return 'error';
+      case 'Media': return 'warning';
+      case 'Baja': return 'success';
       default: return 'default';
     }
   };
@@ -111,7 +78,7 @@ const ColaTickets: React.FC = () => {
         <TableHead>
           <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
             <TableCell><strong>ID</strong></TableCell>
-            <TableCell><strong>Título</strong></TableCell>
+            <TableCell><strong>Descripción</strong></TableCell>
             <TableCell><strong>Cliente</strong></TableCell>
             <TableCell><strong>Prioridad</strong></TableCell>
             <TableCell><strong>Estado</strong></TableCell>
@@ -132,14 +99,14 @@ const ColaTickets: React.FC = () => {
                 <TableCell>
                   <Box>
                     <Typography variant="body2" sx={{ fontWeight: '500' }}>
-                      {ticket.titulo}
+                      {ticket.descripcion}
                     </Typography>
                     <Typography variant="caption" color="textSecondary">
-                      {ticket.maquina?.modelo}
+                      {ticket.maquina?.modelo || 'Sin máquina'}
                     </Typography>
                   </Box>
                 </TableCell>
-                <TableCell>{ticket.cliente.nombre}</TableCell>
+                <TableCell>{ticket.cliente?.nombre || 'N/A'}</TableCell>
                 <TableCell>
                   <Chip label={ticket.prioridad} color={getPrioridadColor(ticket.prioridad)} size="small" />
                 </TableCell>
@@ -148,12 +115,12 @@ const ColaTickets: React.FC = () => {
                 </TableCell>
                 {!mostrarAsignar && (
                   <TableCell>
-                    {ticket.tecnico?.nombre || '-'}
+                    {ticket.tecnico?.nombre || 'No asignado'}
                   </TableCell>
                 )}
                 <TableCell>
                   <Typography variant="caption" color="textSecondary">
-                    {new Date(ticket.fechaCreacion).toLocaleDateString()}
+                    {ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString() : 'N/A'}
                   </Typography>
                 </TableCell>
                 <TableCell align="center">
@@ -166,11 +133,12 @@ const ColaTickets: React.FC = () => {
                   >
                     Ver
                   </Button>
-                  {mostrarAsignar && ticket.estado === 'abierto' && !ticket.tecnico && (
+                  {mostrarAsignar && ticket.estado === 'abierto' && !ticket.tecnicoId && (
                     <Button
                       size="small"
                       variant="contained"
                       color="success"
+                      onClick={() => handleTomarTicket(ticket.id)}
                     >
                       Tomar
                     </Button>
@@ -192,12 +160,19 @@ const ColaTickets: React.FC = () => {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, mt: 2 }}>
-        <Typography variant="h4">Centro de Atención (Help Desk)</Typography>
-        <Button variant="contained" startIcon={<AddIcon />}>
-          Nuevo Ticket
-        </Button>
-      </Box>
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
+          <CircularProgress />
+        </Box>
+      )}
+      {!loading && (
+        <>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, mt: 2 }}>
+            <Typography variant="h4">Centro de Atención (Help Desk)</Typography>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/tickets/new')}>
+              Nuevo Ticket
+            </Button>
+          </Box>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 2, mb: 3 }}>
         <Paper sx={{ p: 2, textAlign: 'center' }}>
@@ -295,6 +270,8 @@ const ColaTickets: React.FC = () => {
           </Typography>
           {renderTabla(todosTickets)}
         </Box>
+      )}
+        </>
       )}
     </Container>
   );

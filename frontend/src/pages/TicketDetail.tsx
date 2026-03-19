@@ -6,10 +6,10 @@ import {
   Select, MenuItem, FormControl, InputLabel, CircularProgress
 } from '@mui/material';
 import { ArrowBack as ArrowBackIcon, Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { ticketApi, clienteApi, maquinaApi } from '../services/apiService';
 
 interface Ticket {
   id: string;
-  titulo: string;
   descripcion: string;
   prioridad: string;
   estado: string;
@@ -69,14 +69,25 @@ interface Usuario {
 const TicketDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+  const isNewTicket = id === 'new';
+
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [visitas, setVisitas] = useState<Visita[]>([]);
   const [loading, setLoading] = useState(true);
   const [tecnicos, setTecnicos] = useState<Usuario[]>([]);
   const [repuestosList, setRepuestosList] = useState<{id:string,nombre:string}[]>([]);
-  const usuarioActual = { id: '2', nombre: 'María López' }; // Simulado - usuario conectado
-  
+  const [clientes, setClientes] = useState<{id:string,nombre:string}[]>([]);
+  const [maquinas, setMaquinas] = useState<{id:string, modelo:string, clienteId:string}[]>([]);
+  const [createForm, setCreateForm] = useState({
+    tipo: 'correctivo',
+    prioridad: 'media',
+    clienteId: '',
+    maquinaId: '',
+    descripcion: '',
+  });
+  const [creating, setCreating] = useState(false);
+  const usuarioActual = { id: 'cmmxsrq10000043k6wef0gcev', nombre: 'Juan Pérez' }; // Simulado - usuario conectado
+
   const [openVisitaDialog, setOpenVisitaDialog] = useState(false);
   const [openTecnicoDialog, setOpenTecnicoDialog] = useState(false);
   const [openEstadoDialog, setOpenEstadoDialog] = useState(false);
@@ -97,57 +108,41 @@ const TicketDetail: React.FC = () => {
     estado: 'programada'
   });
 
-  // Simular carga de datos
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        // Datos de ejemplo
-        const mockTicket: Ticket = {
-          id: id || '1',
-          titulo: 'Máquina no enciende',
-          descripcion: 'La máquina no responde al botón de encendido',
-          prioridad: 'alta',
-          estado: 'en_progreso',
-          tecnicoId: '1',
-          fechaAsignacion: '2026-03-10T09:30:00',
-          clienteId: '1',
-          cliente: { nombre: 'Hospital Santa Cruz' },
-          maquina: { modelo: 'Braun Infusomat', numeroSerie: 'SN123456' },
-          tecnico: { nombre: 'Juan Pérez', id: '1' },
-          visitas: [
-            {
-              id: '1',
-              ticketId: id || '1',
-              tecnicoId: '1',
-              fecha: '2026-03-10',
-              fechaInicio: '2026-03-10T09:00:00',
-              fechaFin: '2026-03-10T10:30:00',
-              descripcion: 'Revisión inicial',
-              estado: 'realizada',
-              tecnico: { nombre: 'Juan Pérez' },
-              usoRepuestos: [
-                { id: 'u1', visitaId: '1', repuestoId: 'r1', cantidad: 1, repuesto: { nombre: 'Filtro' } }
-              ]
-            }
-          ],
-          historialEstados: [
-            {
-              id: '1',
-              estado: 'abierto',
-              fecha: '2026-03-10T08:00:00',
-              cambiadoPor: 'Sistema',
-              observaciones: 'Ticket creado'
-            },
-            {
-              id: '2',
-              estado: 'en_progreso',
-              fecha: '2026-03-10T09:30:00',
-              cambiadoPor: 'Juan Pérez',
-              observaciones: 'Técnico asignado y comenzó el trabajo'
-            }
-          ]
-        };
+      setLoading(true);
 
+      try {
+        const [clientesRes, maquinasRes] = await Promise.all([
+          clienteApi.getAll(),
+          maquinaApi.getAll(),
+        ]);
+
+        setClientes(clientesRes.data);
+        setMaquinas(maquinasRes.data);
+
+        if (isNewTicket) {
+          const primerClienteId = clientesRes.data[0]?.id || '';
+          const primerMaquinaId = maquinasRes.data.find((m: any) => m.clienteId === primerClienteId)?.id || '';
+          setCreateForm((prev) => ({
+            ...prev,
+            clienteId: primerClienteId,
+            maquinaId: primerMaquinaId,
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading clientes/maquinas:', error);
+        setClientes([
+          { id: '1', nombre: 'Hospital Santa Cruz' },
+          { id: '2', nombre: 'Clínica Los Olivos' },
+        ]);
+        setMaquinas([
+          { id: '1', modelo: 'Braun Infusomat', clienteId: '1' },
+          { id: '2', modelo: 'Braun Infusomat Space', clienteId: '2' },
+        ]);
+      }
+
+      try {
         const mockTecnicos: Usuario[] = [
           { id: '1', nombre: 'Juan Pérez' },
           { id: '2', nombre: 'María López' },
@@ -159,19 +154,53 @@ const TicketDetail: React.FC = () => {
           { id: 'r3', nombre: 'Bomba' }
         ];
 
-        setTicket(mockTicket);
-        setVisitas(mockTicket.visitas || []);
         setTecnicos(mockTecnicos);
         setRepuestosList(mockRepuestos);
       } catch (error) {
-        console.error('Error fetching ticket:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error loading datos mock:', error);
       }
+
+      if (!isNewTicket) {
+        try {
+          const response = await ticketApi.getById(id!);
+          setTicket(response.data);
+          setVisitas(response.data.visitas || []);
+        } catch (error) {
+          console.error('Error fetching ticket:', error);
+        }
+      } else {
+        setTicket(null);
+      }
+
+      setLoading(false);
     };
 
     fetchData();
-  }, [id]);
+  }, [id, isNewTicket]);
+
+  const handleCreateTicket = async () => {
+    if (!createForm.clienteId || !createForm.maquinaId || !createForm.descripcion) {
+      alert('Por favor completa todos los campos obligatorios');
+      return;
+    }
+
+    try {
+      setCreating(true);
+      const response = await ticketApi.create({
+        tipo: createForm.tipo,
+        prioridad: createForm.prioridad,
+        clienteId: createForm.clienteId,
+        maquinaId: createForm.maquinaId,
+        descripcion: createForm.descripcion,
+      });
+      navigate(`/tickets/${response.data.id}`);
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+      alert('Error al crear el ticket. Intenta nuevamente.');
+    } finally {
+      setCreating(false);
+    }
+  };
 
   const handleOpenVisitaDialog = () => {
     setOpenVisitaDialog(true);
@@ -321,13 +350,13 @@ const TicketDetail: React.FC = () => {
         ...ticket,
         tecnicoId: usuarioActual.id,
         tecnico: { nombre: usuarioActual.nombre, id: usuarioActual.id },
-        estado: 'en_progreso',
+        estado: 'En Progreso',
         fechaAsignacion: new Date().toISOString(),
         historialEstados: [
           ...(ticket.historialEstados || []),
           {
             id: Date.now().toString(),
-            estado: 'en_progreso',
+            estado: 'En Progreso',
             fecha: new Date().toISOString(),
             cambiadoPor: usuarioActual.nombre,
             observaciones: `${usuarioActual.nombre} tomó este ticket de la cola`
@@ -388,27 +417,133 @@ const TicketDetail: React.FC = () => {
     return <CircularProgress />;
   }
 
+  if (isNewTicket) {
+    const maquinasFiltradas = maquinas.filter((m) => m.clienteId === createForm.clienteId);
+    const canSubmit = !!createForm.clienteId && !!createForm.maquinaId && !!createForm.descripcion;
+
+    return (
+      <Container maxWidth="lg">
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, mt: 2 }}>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate('/tickets')}
+            sx={{ mr: 2 }}
+          >
+            Volver
+          </Button>
+          <Typography variant="h4">Crear Nuevo Ticket</Typography>
+        </Box>
+
+        <Paper sx={{ p: 3, mb: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Complete el formulario para registrar un ticket
+          </Typography>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel id="tipo-label">Tipo</InputLabel>
+              <Select
+                labelId="tipo-label"
+                label="Tipo"
+                value={createForm.tipo}
+                onChange={(e) => setCreateForm({ ...createForm, tipo: e.target.value })}
+              >
+                <MenuItem value="correctivo">Correctivo</MenuItem>
+                <MenuItem value="preventivo">Preventivo</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="prioridad-label">Prioridad</InputLabel>
+              <Select
+                labelId="prioridad-label"
+                label="Prioridad"
+                value={createForm.prioridad}
+                onChange={(e) => setCreateForm({ ...createForm, prioridad: e.target.value })}
+              >
+                <MenuItem value="alta">Alta</MenuItem>
+                <MenuItem value="media">Media</MenuItem>
+                <MenuItem value="baja">Baja</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="cliente-label">Cliente</InputLabel>
+              <Select
+                labelId="cliente-label"
+                label="Cliente"
+                value={createForm.clienteId}
+                onChange={(e) => {
+                  const clienteId = e.target.value;
+                  setCreateForm({
+                    ...createForm,
+                    clienteId,
+                    maquinaId: maquinas.find((m) => m.clienteId === clienteId)?.id || ''
+                  });
+                }}
+              >
+                {clientes.map((c) => (
+                  <MenuItem key={c.id} value={c.id}>
+                    {c.nombre}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth disabled={!createForm.clienteId}>
+              <InputLabel id="maquina-label">Máquina</InputLabel>
+              <Select
+                labelId="maquina-label"
+                label="Máquina"
+                value={createForm.maquinaId}
+                onChange={(e) => setCreateForm({ ...createForm, maquinaId: e.target.value })}
+              >
+                {maquinasFiltradas.map((m) => (
+                  <MenuItem key={m.id} value={m.id}>
+                    {m.modelo}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              label="Descripción"
+              multiline
+              minRows={4}
+              value={createForm.descripcion}
+              onChange={(e) => setCreateForm({ ...createForm, descripcion: e.target.value })}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3 }}>
+            <Button onClick={() => navigate('/tickets')}>Cancelar</Button>
+            <Button
+              variant="contained"
+              onClick={handleCreateTicket}
+              disabled={!canSubmit || creating}
+            >
+              {creating ? 'Creando...' : 'Crear ticket'}
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    );
+  }
+
   if (!ticket) {
     return <Typography>Ticket no encontrado</Typography>;
   }
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'abierto': return 'error';
-      case 'en_progreso': return 'warning';
-      case 'cerrado': return 'success';
-      case 'programada': return 'info';
-      case 'realizada': return 'success';
-      case 'cancelada': return 'error';
+      case 'Programado': return 'default';
+      case 'En Progreso': return 'warning';
+      case 'Esperando Repuestos': return 'info';
+      case 'Completado': return 'success';
       default: return 'default';
     }
   };
 
   const getPrioridadColor = (prioridad: string) => {
     switch (prioridad) {
-      case 'alta': return 'error';
-      case 'media': return 'warning';
-      case 'baja': return 'success';
+      case 'Alta': return 'error';
+      case 'Media': return 'warning';
+      case 'Baja': return 'success';
       default: return 'default';
     }
   };
@@ -436,7 +571,9 @@ const TicketDetail: React.FC = () => {
         >
           Volver
         </Button>
-        <Typography variant="h4">Detalle del Ticket #{ticket.id}</Typography>
+        <Typography variant="h4">
+          {id === 'new' ? 'Crear Nuevo Ticket' : `Detalle del Ticket #${ticket.id}`}
+        </Typography>
       </Box>
 
       {/* Información del Ticket */}
@@ -458,8 +595,8 @@ const TicketDetail: React.FC = () => {
         </Box>
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 2 }}>
           <Box>
-            <Typography variant="body2" color="textSecondary">Título</Typography>
-            <Typography variant="body1">{ticket.titulo}</Typography>
+            <Typography variant="body2" color="textSecondary">Descripción</Typography>
+            <Typography variant="body1">{ticket.descripcion}</Typography>
           </Box>
           <Box>
             <Typography variant="body2" color="textSecondary">Estado</Typography>
