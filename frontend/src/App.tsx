@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import './App.css';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import { UserProvider } from './contexts/UserContext';
 import { DataProvider } from './contexts/DataContext';
+import { bbraunTheme } from './theme/bbraunTheme';
 import Dashboard from './pages/Dashboard';
 import Clientes from './pages/Clientes';
 import ClienteDetail from './pages/ClienteDetail';
@@ -17,17 +18,15 @@ import Tecnicos from './pages/Tecnicos';
 import Inventario from './pages/Inventario';
 import Reportes from './pages/Reportes';
 
-const theme = createTheme();
-
 function App() {
   return (
     <UserProvider>
       <DataProvider>
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={bbraunTheme}>
           <CssBaseline />
           <Router>
             <ErrorBoundary>
-            <Layout>
+              <Layout>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/clientes" element={<Clientes />} />
