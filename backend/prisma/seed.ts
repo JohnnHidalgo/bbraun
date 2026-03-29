@@ -15,6 +15,7 @@ async function main() {
   await prisma.cliente.deleteMany();
   await prisma.usuario.deleteMany();
   await prisma.repuesto.deleteMany();
+  await prisma.agencia.deleteMany();
 
   console.log('🔄 Tablas limpiadas');
 
@@ -51,13 +52,29 @@ async function main() {
 
   console.log('✅ Técnicos creados');
 
+  // Crear Agencias
+  const agenciaNal = await prisma.agencia.create({ data: { ageCentro: 1710, ageOficina: 170, ageCodigo: 'NAL', ageNombre: 'Nacional' } });
+  const agenciaLpb = await prisma.agencia.create({ data: { ageCentro: 1711, ageOficina: 180, ageCodigo: 'LPB', ageNombre: 'La Paz' } });
+  const agenciaCbb = await prisma.agencia.create({ data: { ageCentro: 1730, ageOficina: 190, ageCodigo: 'CBB', ageNombre: 'Cochabamba' } });
+  const agenciaSrz = await prisma.agencia.create({ data: { ageCentro: 1720, ageOficina: 230, ageCodigo: 'SRZ', ageNombre: 'Santa Cruz' } });
+  const agenciaOrr = await prisma.agencia.create({ data: { ageCentro: 1760, ageOficina: 200, ageCodigo: 'ORR', ageNombre: 'Oruro' } });
+  const agenciaPts = await prisma.agencia.create({ data: { ageCentro: 1780, ageOficina: 210, ageCodigo: 'PTS', ageNombre: 'Potosi' } });
+  const agenciaSre = await prisma.agencia.create({ data: { ageCentro: 1770, ageOficina: 220, ageCodigo: 'SRE', ageNombre: 'Sucre' } });
+  const agenciaTja = await prisma.agencia.create({ data: { ageCentro: 1740, ageOficina: 250, ageCodigo: 'TJA', ageNombre: 'Tarija' } });
+  const agenciaTdd = await prisma.agencia.create({ data: { ageCentro: 1750, ageOficina: 240, ageCodigo: 'TDD', ageNombre: 'Trinidad' } });
+  const agenciaRib = await prisma.agencia.create({ data: { ageCentro: 1750, ageOficina: 260, ageCodigo: 'RIB', ageNombre: 'Riberalta' } });
+  const agenciaAlt = await prisma.agencia.create({ data: { ageCentro: 1712, ageOficina: 270, ageCodigo: 'ALT', ageNombre: 'Alto' } });
+  const agenciaImp = await prisma.agencia.create({ data: { ageCentro: 1700, ageOficina: 0, ageCodigo: 'NAL', ageNombre: 'Importaciones' } });
+
+  console.log('✅ Agencias creadas');
+
   // Crear Clientes
   const cliente1 = await prisma.cliente.create({
     data: {
       nombre: 'Hospital Santa Cruz',
       tipo: 'Hospital',
       direccion: 'Av. Cristo Redentor 505',
-      ciudad: 'Santa Cruz'
+      agenciaId: agenciaSrz.id
     }
   });
 
@@ -66,7 +83,7 @@ async function main() {
       nombre: 'Clínica Los Olivos',
       tipo: 'Clínica',
       direccion: 'Calle 21 de Mayo 1478',
-      ciudad: 'La Paz'
+      agenciaId: agenciaLpb.id
     }
   });
 
@@ -75,7 +92,7 @@ async function main() {
       nombre: 'Hospital Viedma',
       tipo: 'Hospital',
       direccion: 'Av. Blanco Galindo Km 7',
-      ciudad: 'Cochabamba'
+      agenciaId: agenciaCbb.id
     }
   });
 
@@ -84,7 +101,7 @@ async function main() {
       nombre: 'Centro Médico Integral',
       tipo: 'Centro Médico',
       direccion: 'Zona Norte, Calle 5 #123',
-      ciudad: 'Santa Cruz'
+      agenciaId: agenciaSrz.id
     }
   });
 
@@ -600,7 +617,7 @@ async function main() {
 main()
   .catch((e) => {
     console.error('❌ Error durante el seed:', e);
-    process.exit(1);
+    throw e;
   })
   .finally(async () => {
     await prisma.$disconnect();

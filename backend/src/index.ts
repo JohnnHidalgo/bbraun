@@ -12,6 +12,7 @@ import visitaRoutes from './interfaces/routes/visitaRoutes';
 import repuestoRoutes from './interfaces/routes/repuestoRoutes';
 import contactoRoutes from './interfaces/routes/contactoRoutes';
 import inventarioRoutes from './interfaces/routes/inventarioRoutes';
+import agenciaRoutes from './interfaces/routes/agenciaRoutes';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use('/api/visitas', visitaRoutes);
 app.use('/api/repuestos', repuestoRoutes);
 app.use('/api/contactos', contactoRoutes);
 app.use('/api/inventarios', inventarioRoutes);
+app.use('/api/agencias', agenciaRoutes);
 
 const PORT = process.env.PORT || 3000;
 

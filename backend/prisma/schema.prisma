@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Usuario {
@@ -32,11 +32,12 @@ model Cliente {
   nombre           String
   tipo             String   // hospital, clinica, institucion
   direccion        String
-  ciudad           String
+  agenciaId        String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   // Relaciones
+  agencia    Agencia? @relation(fields: [agenciaId], references: [id], onDelete: SetNull)
   contactos   Contacto[]
   maquinas    Maquina[]
   contratos   Contrato[]
@@ -44,6 +45,18 @@ model Cliente {
   inventarios InventarioCliente[]
 
   @@map("clientes")
+}
+
+model Agencia {
+  id        String    @id @default(cuid())
+  ageCentro Int
+  ageOficina Int
+  ageCodigo String
+  ageNombre String
+  clientes  Cliente[]
+
+  @@unique([ageCentro, ageOficina, ageCodigo])
+  @@map("agencias")
 }
 
 model Contacto {

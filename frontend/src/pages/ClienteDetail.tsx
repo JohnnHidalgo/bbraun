@@ -4,12 +4,20 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { clienteApi, maquinaApi, ticketApi, visitaApi, repuestoApi, inventarioApi, contactoApi } from '../services/apiService';
 
+interface Agencia {
+  id: string;
+  ageCentro: number;
+  ageOficina: number;
+  ageCodigo: string;
+  ageNombre: string;
+}
+
 interface Cliente {
   id: string;
   nombre: string;
   tipo: string;
   direccion: string;
-  ciudad: string;
+  agencia?: Agencia;
   contactos?: Contacto[];
 }
 
@@ -167,7 +175,6 @@ const ClienteDetail: React.FC = () => {
         id: id!,
         nombre: 'Cliente Demo',
         tipo: 'Hospital',
-        ciudad: 'La Paz',
         direccion: 'Av. Principal 123',
         contactos: []
       });
@@ -489,8 +496,8 @@ const ClienteDetail: React.FC = () => {
                     <Typography variant="body1">{cliente.tipo}</Typography>
                   </Box>
                   <Box>
-                    <Typography color="textSecondary">Ciudad</Typography>
-                    <Typography variant="body1">{cliente.ciudad}</Typography>
+                    <Typography color="textSecondary">Agencia</Typography>
+                    <Typography variant="body1">{cliente.agencia?.ageNombre || 'No asignada'}</Typography>
                   </Box>
                   <Box>
                     <Typography color="textSecondary">Dirección</Typography>

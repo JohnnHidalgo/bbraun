@@ -2,32 +2,53 @@ import { Container, Typography, Button, Box, Card, CardContent, Dialog, DialogTi
 import { Add as AddIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { clienteApi } from '../services/apiService';
+import { clienteApi, agenciaApi } from '../services/apiService';
+
+interface Agencia {
+  id: string;
+  ageCentro: number;
+  ageOficina: number;
+  ageCodigo: string;
+  ageNombre: string;
+}
 
 interface Cliente {
   id: string;
   nombre: string;
   tipo: string;
   direccion: string;
-  ciudad: string;
+  agenciaId?: string;
+  agencia?: Agencia;
   contactos?: any[];
 }
 
 const Clientes: React.FC = () => {
   const navigate = useNavigate();
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [agencias, setAgencias] = useState<Agencia[]>([]);
   const [loading, setLoading] = useState(true);
   const [openCreate, setOpenCreate] = useState(false);
   const [newCliente, setNewCliente] = useState({
     nombre: '',
     tipo: 'Hospital',
     direccion: '',
-    ciudad: '',
+    agenciaId: ''
   });
 
   useEffect(() => {
     loadClientes();
+    loadAgencias();
   }, []);
+
+  const loadAgencias = async () => {
+    try {
+      const response = await agenciaApi.getAll();
+      setAgencias(response.data);
+    } catch (error) {
+      console.error('Error loading agencias:', error);
+      setAgencias([]);
+    }
+  };
 
   const loadClientes = async () => {
     try {
@@ -37,9 +58,9 @@ const Clientes: React.FC = () => {
       console.error('Error loading clientes:', error);
       // Fallback to sample data if API fails
       setClientes([
-        { id: '1', nombre: 'Hospital Santa Cruz', tipo: 'Hospital', ciudad: 'Santa Cruz', direccion: 'Av. Principal 123', contactos: [] },
-        { id: '2', nombre: 'Clínica Los Olivos', tipo: 'Clínica', ciudad: 'La Paz', direccion: 'Calle Los Olivos 456', contactos: [] },
-        { id: '3', nombre: 'Hospital Viedma', tipo: 'Hospital', ciudad: 'Cochabamba', direccion: 'Plaza Principal 789', contactos: [] },
+        { id: '1', nombre: 'Hospital Santa Cruz', tipo: 'Hospital', direccion: 'Av. Principal 123', contactos: [] },
+        { id: '2', nombre: 'Clínica Los Olivos', tipo: 'Clínica', direccion: 'Calle Los Olivos 456', contactos: [] },
+        { id: '3', nombre: 'Hospital Viedma', tipo: 'Hospital', direccion: 'Plaza Principal 789', contactos: [] },
       ]);
     } finally {
       setLoading(false);
@@ -54,7 +75,7 @@ const Clientes: React.FC = () => {
         nombre: '',
         tipo: 'Hospital',
         direccion: '',
-        ciudad: '',
+        agenciaId: ''
       });
       loadClientes();
     } catch (error) {
@@ -94,7 +115,7 @@ const Clientes: React.FC = () => {
                 Tipo: {cliente.tipo}
               </Typography>
               <Typography color="textSecondary">
-                Ciudad: {cliente.ciudad}
+                Agencia: {cliente.agencia?.ageNombre || 'Sin Agencia'}
               </Typography>
               <Box sx={{ mt: 2 }}>
                 <Button size="small" color="primary" startIcon={<VisibilityIcon />} onClick={() => handleViewDetails(cliente)}>
@@ -145,17 +166,25 @@ const Clientes: React.FC = () => {
             <Box sx={{ flex: '1 1 calc(50% - 16px)', minWidth: '200px' }}>
               <TextField
                 fullWidth
-                label="Ciudad"
-                value={newCliente.ciudad}
-                onChange={(e) => setNewCliente({ ...newCliente, ciudad: e.target.value })}
+                select
+                label="Agencia"
+                value={newCliente.agenciaId}
+                onChange={(e) => setNewCliente({ ...newCliente, agenciaId: e.target.value })}
                 required
-              />
+              >
+                <MenuItem value="">Seleccionar agencia</MenuItem>
+                {agencias.map((agencia) => (
+                  <MenuItem key={agencia.id} value={agencia.id}>
+                    {agencia.ageNombre} ({agencia.ageCodigo})
+                  </MenuItem>
+                ))}
+              </TextField>
             </Box>
           </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenCreate(false)}>Cancelar</Button>
-          <Button onClick={handleCreateCliente} variant="contained" disabled={!newCliente.nombre || !newCliente.ciudad}>
+          <Button onClick={handleCreateCliente} variant="contained" disabled={!newCliente.nombre || !newCliente.agenciaId}>
             Crear Cliente
           </Button>
         </DialogActions>

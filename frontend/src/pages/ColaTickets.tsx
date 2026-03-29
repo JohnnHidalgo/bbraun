@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import type { Ticket } from '../contexts/DataContext';
 import { useNavigate } from 'react-router-dom';
 import {
   Container, Typography, Button, Box, Chip, Table, TableBody, TableCell, TableContainer,
@@ -8,19 +9,7 @@ import { Add as AddIcon, OpenInNew as OpenIcon } from '@mui/icons-material';
 import { useUser } from '../contexts/UserContext';
 import { useData } from '../contexts/DataContext';
 
-interface Ticket {
-  id: string;
-  descripcion: string;
-  prioridad: string;
-  estado: string;
-  cliente: { nombre: string };
-  tecnico?: { nombre: string };
-  maquina?: { modelo: string };
-  fechaSolicitud: string;
-  fechaAsignacion?: string;
-  tecnicoId?: string;
-  createdAt: string;
-}
+
 
 const ColaTickets: React.FC = () => {
   const navigate = useNavigate();

@@ -7,6 +7,7 @@ export const getClientes = async (req: Request, res: Response) => {
   try {
     const clientes = await prisma.cliente.findMany({
       include: {
+        agencia: true,
         maquinas: true,
         contactos: true,
       },
@@ -19,13 +20,13 @@ export const getClientes = async (req: Request, res: Response) => {
 
 export const createCliente = async (req: Request, res: Response) => {
   try {
-    const { nombre, tipo, direccion, ciudad } = req.body;
+    const { nombre, tipo, direccion, agenciaId } = req.body;
     const cliente = await prisma.cliente.create({
       data: {
         nombre,
         tipo,
         direccion,
-        ciudad,
+        agenciaId,
       },
     });
     res.json(cliente);
@@ -40,6 +41,7 @@ export const getClienteById = async (req: Request, res: Response) => {
     const cliente = await prisma.cliente.findUnique({
       where: { id },
       include: {
+        agencia: true,
         maquinas: true,
         contratos: true,
         tickets: true,
@@ -58,14 +60,14 @@ export const getClienteById = async (req: Request, res: Response) => {
 export const updateCliente = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as { id: string };
-    const { nombre, tipo, direccion, ciudad } = req.body;
+    const { nombre, tipo, direccion, agenciaId } = req.body;
     const cliente = await prisma.cliente.update({
       where: { id },
       data: {
         nombre,
         tipo,
         direccion,
-        ciudad,
+        agenciaId,
       },
     });
     res.json(cliente);

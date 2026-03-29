@@ -21,6 +21,15 @@ export const clienteApi = {
   delete: (id: string) => api.delete(`/clientes/${id}`),
 };
 
+// Servicios para Agencias
+export const agenciaApi = {
+  getAll: () => api.get('/agencias'),
+  getById: (id: string) => api.get(`/agencias/${id}`),
+  create: (data: any) => api.post('/agencias', data),
+  update: (id: string, data: any) => api.put(`/agencias/${id}`, data),
+  delete: (id: string) => api.delete(`/agencias/${id}`),
+};
+
 // Servicios para Máquinas
 export const maquinaApi = {
   getAll: () => api.get('/maquinas'),

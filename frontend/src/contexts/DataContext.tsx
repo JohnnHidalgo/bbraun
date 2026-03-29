@@ -1,24 +1,22 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import {
   clienteApi,
   maquinaApi,
   ticketApi,
   visitaApi,
-  repuestoApi,
-  contactoApi,
 } from '../services/apiService';
 
-interface Cliente {
+export interface Cliente {
   id: string;
   nombre: string;
   tipo: string;
   direccion: string;
-  ciudad: string;
   createdAt: string;
   updatedAt: string;
 }
 
-interface Maquina {
+export interface Maquina {
   id: string;
   modelo: string;
   numeroSerie: string;
@@ -28,7 +26,7 @@ interface Maquina {
   updatedAt: string;
 }
 
-interface Ticket {
+export interface Ticket {
   id: string;
   tipo: string;
   estado: string;
@@ -45,7 +43,7 @@ interface Ticket {
   tecnico?: { id: string; nombre: string };
 }
 
-interface Visita {
+export interface Visita {
   id: string;
   ticketId: string;
   tecnicoId: string;

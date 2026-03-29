@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Container, Typography, Box, Button, Card, CardContent, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Grid, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
+  TableHead, TableRow, Paper, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
   MenuItem, Select, FormControl, InputLabel
 } from '@mui/material';
 import { FileDownload as FileDownloadIcon, Print as PrintIcon, GetApp as GetAppIcon } from '@mui/icons-material';
@@ -297,48 +297,40 @@ const Reportes: React.FC = () => {
         </Box>
 
         {/* Estadísticas KPI */}
-        <Grid container spacing={2} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography color="textSecondary">Total Tickets</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-                  {estadisticas.totalTickets}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography color="textSecondary">Abiertos</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#ff6b6b' }}>
-                  {estadisticas.ticketsAbiertos}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography color="textSecondary">En Proceso</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#ffa94d' }}>
-                  {estadisticas.ticketsEnProceso}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography color="textSecondary">Cerrados</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#51cf66' }}>
-                  {estadisticas.ticketsCerrados}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
+          <Card>
+            <CardContent>
+              <Typography color="textSecondary">Total Tickets</Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+                {estadisticas.totalTickets}
+              </Typography>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent>
+              <Typography color="textSecondary">Abiertos</Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#ff6b6b' }}>
+                {estadisticas.ticketsAbiertos}
+              </Typography>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent>
+              <Typography color="textSecondary">En Proceso</Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#ffa94d' }}>
+                {estadisticas.ticketsEnProceso}
+              </Typography>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent>
+              <Typography color="textSecondary">Cerrados</Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#51cf66' }}>
+                {estadisticas.ticketsCerrados}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
 
         {/* Reportes disponibles */}
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
