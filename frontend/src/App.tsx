@@ -1,12 +1,14 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import './App.css';
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import { UserProvider } from './contexts/UserContext';
 import { DataProvider } from './contexts/DataContext';
 import { bbraunTheme } from './theme/bbraunTheme';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Clientes from './pages/Clientes';
 import ClienteDetail from './pages/ClienteDetail';
@@ -26,20 +28,135 @@ function App() {
           <CssBaseline />
           <Router>
             <ErrorBoundary>
-              <Layout>
               <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/clientes" element={<Clientes />} />
-                <Route path="/clientes/:id" element={<ClienteDetail />} />
-                <Route path="/maquinas" element={<Maquinas />} />
-                <Route path="/tickets" element={<ColaTickets />} />
-                <Route path="/tickets/:id" element={<TicketDetail />} />
-                <Route path="/visitas" element={<Visitas />} />
-                <Route path="/tecnicos" element={<Tecnicos />} />
-                <Route path="/inventario" element={<Inventario />} />
-                <Route path="/reportes" element={<Reportes />} />
+                {/* Ruta de login (pública) */}
+                <Route path="/login" element={<Login />} />
+                
+                {/* Rutas protegidas */}
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute
+                      element={
+                        <Layout>
+                          <Dashboard />
+                        </Layout>
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/clientes"
+                  element={
+                    <ProtectedRoute
+                      element={
+                        <Layout>
+                          <Clientes />
+                        </Layout>
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/clientes/:id"
+                  element={
+                    <ProtectedRoute
+                      element={
+                        <Layout>
+                          <ClienteDetail />
+                        </Layout>
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/maquinas"
+                  element={
+                    <ProtectedRoute
+                      element={
+                        <Layout>
+                          <Maquinas />
+                        </Layout>
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/tickets"
+                  element={
+                    <ProtectedRoute
+                      element={
+                        <Layout>
+                          <ColaTickets />
+                        </Layout>
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/tickets/:id"
+                  element={
+                    <ProtectedRoute
+                      element={
+                        <Layout>
+                          <TicketDetail />
+                        </Layout>
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/visitas"
+                  element={
+                    <ProtectedRoute
+                      element={
+                        <Layout>
+                          <Visitas />
+                        </Layout>
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/tecnicos"
+                  element={
+                    <ProtectedRoute
+                      element={
+                        <Layout>
+                          <Tecnicos />
+                        </Layout>
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/inventario"
+                  element={
+                    <ProtectedRoute
+                      element={
+                        <Layout>
+                          <Inventario />
+                        </Layout>
+                      }
+                    />
+                  }
+                />
+                <Route
+                  path="/reportes"
+                  element={
+                    <ProtectedRoute
+                      element={
+                        <Layout>
+                          <Reportes />
+                        </Layout>
+                      }
+                    />
+                  }
+                />
+                
+                {/* Redirect por defecto */}
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
-            </Layout>
             </ErrorBoundary>
           </Router>
         </ThemeProvider>

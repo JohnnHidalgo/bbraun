@@ -1,53 +1,105 @@
 # Sistema de Mantenimiento BBRAUN - Droguería INTI
 
+## Descripción General
+
+Sistema de gestión de mantenimiento preventivo y correctivo para equipos BBRAUN con autenticación integrada a Microsoft Entra ID.
+
+## Características Principales
+
+- ✅ **Autenticación con Microsoft**: Los usuarios inician sesión con sus correos institucionales
+- ✅ **Gestión de Clientes**: Hospitales y clínicas
+- ✅ **Control de Máquinas**: Registro y seguimiento de equipos BBRAUN
+- ✅ **Sistema de Tickets**: Mantenimiento preventivo y correctivo
+- ✅ **Visitas Técnicas**: Registro de intervenciones
+- ✅ **Gestión de Repuestos**: Control de inventario
+- ✅ **Reportes**: Análisis de mantenimiento y satisfacción
+
 ## Arquitectura del Sistema
 
 ### Backend (Node.js + Express + Prisma + PostgreSQL)
 - **Clean Architecture**: Separación en capas (Entities, Use Cases, Interface Adapters, Frameworks & Drivers)
-- **Autenticación**: JWT
-- **ORM**: Prisma
-- **Base de Datos**: PostgreSQL
+- **Autenticación**: Microsoft Entra ID + JWT
+- **ORM**: Prisma con PostgreSQL
+- **Middlewares**: CORS, Helmet, Morgan
 
 ### Frontend (React + Vite + Material UI)
 - **Clean Architecture**: Componentes, hooks, servicios, contextos
-- **UI**: Material UI para interfaz limpia y corporativa
-- **Estado**: Context API para gestión de estado
+- **UI**: Material UI para interfaz corporativa
+- **Estado**: Context API
+- **Rutas protegidas**: Solo usuarios autenticados
 
-## Esquema de Base de Datos
+## Guía de Instalación Rápida
 
-### Entidades Principales
-- Usuarios (Administrador, Técnico, Cliente)
-- Clientes (Hospitales, Clínicas)
-- Máquinas (BBRAUN)
-- Contratos
-- Tickets (Mantenimiento Preventivo/Correctivo)
-- Visitas
-- Repuestos
-- Inventario por Cliente
-- Encuestas de Satisfacción
+### 1. Configurar Microsoft Entra ID
+
+Ver: [MICROSOFT_AUTH_SETUP.md](./MICROSOFT_AUTH_SETUP.md)
+
+### 2. Backend
+
+```bash
+cd backend
+npm install
+npm run prisma:migrate
+npm run dev
+```
+
+### 3. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+La aplicación abrirá en `http://localhost:5173` y redirigirá a la página de login.
+
+## Variables de Entorno Requeridas
+
+Crear archivo `.env` en la carpeta `backend`:
+
+```env
+# Microsoft Configuration
+MICROSOFT_CLIENT_ID=tu-client-id
+MICROSOFT_CLIENT_SECRET=tu-client-secret
+MICROSOFT_TENANT_ID=tu-tenant-id
+MICROSOFT_REDIRECT_URI=http://localhost:3000/api/auth/callback
+
+# JWT
+JWT_SECRET=tu-secreto-seguro
+JWT_EXPIRES_IN=24h
+
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/bbraun
+
+# Server
+PORT=3000
+FRONTEND_URL=http://localhost:5173
+```
 
 ## API REST Endpoints
 
-### Autenticación
-- POST /api/auth/login
-- POST /api/auth/register
+### Autenticación (Pública)
+- `GET /api/auth/microsoft-login-url` - Obtiene URL de login
+- `GET /api/auth/callback` - Callback de Microsoft OAuth
+- `POST /api/auth/logout` - Cierra sesión (con token)
+- `GET /api/auth/me` - Usuario actual (con token)
 
-### Usuarios
-- GET /api/usuarios
-- POST /api/usuarios
-- PUT /api/usuarios/:id
-- DELETE /api/usuarios/:id
+### Usuarios (Protegidas)
+- `GET /api/usuarios`
+- `POST /api/usuarios`
+- `PUT /api/usuarios/:id`
+- `DELETE /api/usuarios/:id`
 
-### Clientes
-- GET /api/clientes
-- POST /api/clientes
-- PUT /api/clientes/:id
-- DELETE /api/clientes/:id
+### Clientes (Protegidas)
+- `GET /api/clientes`
+- `POST /api/clientes`
+- `PUT /api/clientes/:id`
+- `DELETE /api/clientes/:id`
 
-### Máquinas
-- GET /api/maquinas
-- POST /api/maquinas
-- PUT /api/maquinas/:id
+### Máquinas (Protegidas)
+- `GET /api/maquinas`
+- `POST /api/maquinas`
+- `PUT /api/maquinas/:id`
 - DELETE /api/maquinas/:id
 
 ### Tickets

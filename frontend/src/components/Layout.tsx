@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, Typography, Button, Box, Drawer, List, ListItem, ListItemButton, ListItemText, Avatar, Divider, useTheme, Chip } from '@mui/material';
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Dashboard as DashboardIcon, People as PeopleIcon, Build as BuildIcon, Assignment as AssignmentIcon, Person as PersonIcon, Storage as StorageIcon, Assessment as AssessmentIcon, Logout as LogoutIcon } from '@mui/icons-material';
 import { useUser } from '../contexts/UserContext';
 
@@ -13,8 +13,14 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const theme = useTheme();
-  const { user } = useUser();
+  const { user, logout } = useUser();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   const menuItems = [
     { text: 'Dashboard', path: '/', icon: <DashboardIcon sx={{ mr: 2 }} /> },
@@ -53,7 +59,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {user?.nombre || 'Usuario'}
           </Typography>
           <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-            Técnico
+            {user?.rol || 'Técnico'}
           </Typography>
         </Box>
       </Box>
@@ -98,6 +104,36 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </ListItemButton>
             </ListItem>
           );
+        })}
+      </List>
+
+      <Divider />
+
+      {/* Logout Button */}
+      <Box sx={{ p: 1.5 }}>
+        <Button
+          fullWidth
+          startIcon={<LogoutIcon />}
+          onClick={handleLogout}
+          sx={{
+            textTransform: 'none',
+            fontSize: '0.95rem',
+            fontWeight: 500,
+            color: 'text.primary',
+            border: '1px solid',
+            borderColor: 'divider',
+            '&:hover': {
+              backgroundColor: '#fee2e2',
+              borderColor: 'error.main',
+              color: 'error.main',
+            },
+          }}
+        >
+          Cerrar Sesión
+        </Button>
+      </Box>
+    </Box>
+  );
         })}
       </List>
 

@@ -1,14 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import api from '../services/api';
 
-interface User {
+export interface User {
   id: string;
   nombre: string;
+  email: string;
+  rol: string;
+  region?: string;
 }
 
 interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
+  loading: boolean;
+  isAuthenticated: boolean;
+  logout: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -27,22 +34,49 @@ interface UserProviderProps {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Simular carga del usuario desde API o localStorage
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    // Intentar obtener usuario actual si hay token
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+      fetchCurrentUser();
     } else {
-      // Usuario simulado por defecto
-      const defaultUser = { id: 'cmmxsrq10000043k6wef0gcev', nombre: 'Juan Pérez' };
-      setUser(defaultUser);
-      localStorage.setItem('user', JSON.stringify(defaultUser));
+      setLoading(false);
     }
   }, []);
 
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await api.get('/auth/me');
+      setUser(response.data);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Failed to fetch current user:', error);
+      localStorage.removeItem('token');
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, loading, isAuthenticated, logout }}>
       {children}
     </UserContext.Provider>
   );
