@@ -134,35 +134,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </Box>
     </Box>
   );
-        })}
-      </List>
-
-      <Divider />
-
-      {/* Logout Button */}
-      <Box sx={{ p: 1.5 }}>
-        <Button
-          fullWidth
-          startIcon={<LogoutIcon />}
-          sx={{
-            textTransform: 'none',
-            fontSize: '0.95rem',
-            fontWeight: 500,
-            color: 'text.primary',
-            border: '1px solid',
-            borderColor: 'divider',
-            '&:hover': {
-              backgroundColor: '#fee2e2',
-              borderColor: 'error.main',
-              color: 'error.main',
-            },
-          }}
-        >
-          Cerrar Sesión
-        </Button>
-      </Box>
-    </Box>
-  );
 
   return (
     <Box sx={{ display: 'flex', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
