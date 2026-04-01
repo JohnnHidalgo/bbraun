@@ -1,6 +1,9 @@
 # Dockerfile for Backend
 FROM node:18-slim
 
+# Install OpenSSL 1.1 for Prisma compatibility
+RUN apt-get update && apt-get install -y libssl1.1 && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Copy package files
@@ -10,8 +13,8 @@ COPY prisma ./prisma/
 # Install dependencies
 RUN npm install
 
-# Generate Prisma client
-RUN npx prisma generate
+# Generate Prisma client with correct binary targets for Fedora/RHEL
+RUN npx prisma generate --binary-targets=rhel-openssl-1.1.x
 
 # Copy source code
 COPY . .
