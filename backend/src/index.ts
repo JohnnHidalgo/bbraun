@@ -43,7 +43,7 @@ app.use('/api/contactos', authMiddleware, contactoRoutes);
 app.use('/api/inventarios', authMiddleware, inventarioRoutes);
 app.use('/api/agencias', authMiddleware, agenciaRoutes);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
