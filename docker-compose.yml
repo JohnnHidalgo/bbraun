@@ -1,26 +1,13 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: bbraun_db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
   backend:
     build: ./backend
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://user:password@postgres:5432/bbraun_db
+      - DATABASE_URL=postgresql://dbaqas1:Dba_qa_JH@192.168.103.15:5432/bbraun_db
       - NODE_ENV=production
-    depends_on:
-      - postgres
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -31,6 +18,3 @@ services:
       - "80:80"
     depends_on:
       - backend
-
-volumes:
-  postgres_data:

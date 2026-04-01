@@ -19,9 +19,6 @@ COPY . .
 # Build the app
 RUN npm run build
 
-# Run migrations in production
-RUN npx prisma migrate deploy
-
 # Expose port
 EXPOSE 3000
 
