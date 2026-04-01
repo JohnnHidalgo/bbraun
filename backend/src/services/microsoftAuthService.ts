@@ -21,9 +21,18 @@ const msalConfig: Configuration = {
   },
 };
 
-const cca = new ConfidentialClientApplication(msalConfig);
+let cca: ConfidentialClientApplication | null = null;
+
+if (microsoftConfig.auth.clientId && microsoftConfig.auth.clientSecret) {
+  cca = new ConfidentialClientApplication(msalConfig);
+} else {
+  console.warn('Microsoft Auth credentials not configured. Skipping MSAL initialization.');
+}
 
 export const getMicrosoftAuthUrl = async () => {
+  if (!cca) {
+    throw new Error('Microsoft Auth not configured');
+  }
   const authUrlParameters = {
     scopes: ['user.read', 'mail.read'],
     redirectUri: microsoftConfig.auth.redirectUri,
@@ -33,6 +42,9 @@ export const getMicrosoftAuthUrl = async () => {
 };
 
 export const getMicrosoftAccessToken = async (code: string) => {
+  if (!cca) {
+    throw new Error('Microsoft Auth not configured');
+  }
   const tokenRequest: AuthorizationCodeRequest = {
     code,
     scopes: ['user.read', 'mail.read'],
