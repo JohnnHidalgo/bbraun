@@ -1,8 +1,5 @@
 # Dockerfile for Backend
-FROM node:18-alpine
-
-# Install OpenSSL 1.1 compatibility for Prisma
-RUN apk add --no-cache openssl1.1-compat
+FROM node:18-slim
 
 WORKDIR /app
 
@@ -13,8 +10,8 @@ COPY prisma ./prisma/
 # Install dependencies
 RUN npm install
 
-# Generate Prisma client with correct binary targets
-RUN npx prisma generate --binary-targets=linux-musl-openssl-1.1.x
+# Generate Prisma client
+RUN npx prisma generate
 
 # Copy source code
 COPY . .
