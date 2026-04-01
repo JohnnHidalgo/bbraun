@@ -1,8 +1,8 @@
 export declare class ContactoService {
     getContactosByCliente(clienteId: string): Promise<{
         id: string;
-        nombre: string;
         email: string | null;
+        nombre: string;
         createdAt: Date;
         updatedAt: Date;
         clienteId: string;
@@ -12,8 +12,8 @@ export declare class ContactoService {
     }[]>;
     getContactoById(id: string): Promise<{
         id: string;
-        nombre: string;
         email: string | null;
+        nombre: string;
         createdAt: Date;
         updatedAt: Date;
         clienteId: string;
@@ -30,8 +30,8 @@ export declare class ContactoService {
         esPrincipal?: boolean;
     }): Promise<{
         id: string;
-        nombre: string;
         email: string | null;
+        nombre: string;
         createdAt: Date;
         updatedAt: Date;
         clienteId: string;
@@ -47,8 +47,8 @@ export declare class ContactoService {
         esPrincipal: boolean;
     }>): Promise<{
         id: string;
-        nombre: string;
         email: string | null;
+        nombre: string;
         createdAt: Date;
         updatedAt: Date;
         clienteId: string;
@@ -59,8 +59,8 @@ export declare class ContactoService {
     deleteContacto(id: string): Promise<boolean>;
     setContactoPrincipal(id: string): Promise<{
         id: string;
-        nombre: string;
         email: string | null;
+        nombre: string;
         createdAt: Date;
         updatedAt: Date;
         clienteId: string;
