@@ -13,8 +13,8 @@ COPY prisma ./prisma/
 # Install dependencies
 RUN npm install
 
-# Generate Prisma client with correct binary targets
-RUN npx prisma generate --binary-targets=debian-openssl-1.1.x
+# Generate Prisma client
+RUN npx prisma generate
 
 # Copy source code
 COPY . .
