@@ -1,10 +1,3 @@
--- Script SQL para crear la base de datos bbraun_db
--- Ejecutar en PostgreSQL
-
--- Crear la base de datos (si no existe)
--- CREATE DATABASE bbraun_db;
--- \c bbraun_db;
-
 -- Crear tablas basadas en el schema de Prisma
 
 -- Tabla usuarios
