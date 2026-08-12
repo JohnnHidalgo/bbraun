@@ -1,4 +1,4 @@
-# Sistema de Mantenimiento BBRAUN - Droguería INTI
+# Sistema de Mantenimiento tickets
 
 ## Descripción General
 
